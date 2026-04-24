@@ -1,8 +1,8 @@
 ---
 name: cc-switcher
 description: |
-  Use when: 用户提到配置模型提供商、配置 API Key、配置 DeepSeek/Qwen/OpenRouter/Gemini 等第三方提供商、让 Claude Code 使用第三方 API。
-  DO NOT use when: 用户只是在问 Claude 模型的能力对比，或只是切换模型而不涉及 API Key 配置。
+  Use when: 用户提到配置模型、添加DeepSeek/Qwen/OpenRouter/Gemini 等第三方提供商、让 Claude Code 使用第三方 API、配置 cc 命令、更新模型、模型过期、更新提供商配置。
+  DO NOT use when: 用户只是在问 Claude 模型的能力对比，或只是切换 /model 而不涉及 API Key 配置。
 ---
 
 ## 意图判断
