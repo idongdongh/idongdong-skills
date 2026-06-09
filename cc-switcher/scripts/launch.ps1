@@ -25,7 +25,7 @@ $selectedName = $null
 $fzfAvailable = $null -ne (Get-Command fzf -ErrorAction SilentlyContinue)
 
 if ($fzfAvailable) {
-    $header = "Switch between providers. Applies to this terminal session only."
+    $header = "Switch between providers. Applies to this and future Claude Code sessions."
     $selected = $entries | ForEach-Object { $_.Display } | fzf `
         --prompt="" `
         --header=$header `
@@ -42,7 +42,7 @@ if ($fzfAvailable) {
         $selectedName = ($selected -split "\s+")[0]
     }
 } else {
-    Write-Host "Switch between providers. Applies to this terminal session only.`n" -ForegroundColor Gray
+    Write-Host "Switch between providers. Applies to this and future Claude Code sessions.`n" -ForegroundColor Gray
     for ($i = 0; $i -lt $entries.Count; $i++) {
         Write-Host "  $($i + 1)  $($entries[$i].Display)"
     }
@@ -57,9 +57,13 @@ if ($fzfAvailable) {
 if (-not $selectedName) { exit 1 }
 
 $providerPath = "$providersDir\$selectedName.json"
-$settingsJson = Get-Content $providerPath -Raw | ConvertFrom-Json |
-    Select-Object -Property env |
-    ConvertTo-Json -Compress
+$settingsPath = "$env:USERPROFILE\.claude\settings.json"
+if (-not (Test-Path $settingsPath)) { '{}' | Out-File -FilePath $settingsPath -Encoding utf8 }
+
+$settings = Get-Content $settingsPath -Raw | ConvertFrom-Json
+$providerEnv = Get-Content $providerPath -Raw | ConvertFrom-Json
+$settings | Add-Member -NotePropertyMembers @{ env = $providerEnv.env } -Force
+$settings | ConvertTo-Json -Depth 10 -Compress | Out-File -FilePath $settingsPath -Encoding utf8
 
 Write-Host "Switched to $selectedName, starting Claude Code..."
-& claude --settings $settingsJson @args
+& claude @args

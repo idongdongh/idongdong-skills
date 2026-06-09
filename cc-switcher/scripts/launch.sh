@@ -21,7 +21,7 @@ fi
 
 config=$(echo "$options" | fzf \
   --prompt="" \
-  --header=$'Switch between providers. Applies to this terminal session only.\n' \
+  --header=$'Switch between providers. Applies to this and future Claude Code sessions.\n' \
   --header-first \
   --height=10 \
   --no-border \
@@ -38,5 +38,14 @@ config=$(echo "$options" | fzf \
 
 [ -z "$config" ] && exit 1
 
+[ -f ~/.claude/settings.json ] || echo '{}' > ~/.claude/settings.json
+
+tmp=$(mktemp)
+jq -s '.[0] * {"env": .[1].env}' \
+  ~/.claude/settings.json \
+  ~/.claude/providers/$config.json \
+  > "$tmp" \
+  && mv "$tmp" ~/.claude/settings.json
+
 echo "Switched to $config, starting Claude Code..."
-claude --settings "$(jq '{env: .env}' ~/.claude/providers/$config.json)" "$@"
+claude "$@"
