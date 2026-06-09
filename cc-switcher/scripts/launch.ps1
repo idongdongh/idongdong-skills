@@ -1,7 +1,6 @@
 Write-Host "`n  Select Provider" -ForegroundColor Blue
 
 $providersDir = "$env:USERPROFILE\.claude\providers"
-$settingsPath = "$env:USERPROFILE\.claude\settings.json"
 
 # Scan all .json files and build menu entries
 $entries = @()
@@ -26,7 +25,7 @@ $selectedName = $null
 $fzfAvailable = $null -ne (Get-Command fzf -ErrorAction SilentlyContinue)
 
 if ($fzfAvailable) {
-    $header = "Switch between providers. Applies to this and future Claude Code sessions."
+    $header = "Switch between providers. Applies to this terminal session only."
     $selected = $entries | ForEach-Object { $_.Display } | fzf `
         --prompt="" `
         --header=$header `
@@ -38,15 +37,12 @@ if ($fzfAvailable) {
         --no-info `
         --separator="" `
         --pointer=" " `
-        --preview="echo ''" `
-        --preview-window="down:1:noborder" `
-        --bind="load:+change-preview(echo '  Enter to confirm · Esc to exit')" `
-        --color="header:gray,hl:blue,hl+:blue,bg+:-1,fg+:blue,pointer:blue,preview-bg:-1,preview-fg:240"
+        --color="header:gray,hl:blue,hl+:blue,bg+:-1,fg+:blue,pointer:blue"
     if ($selected) {
         $selectedName = ($selected -split "\s+")[0]
     }
 } else {
-    Write-Host "Switch between providers. Applies to this and future Claude Code sessions.`n" -ForegroundColor Gray
+    Write-Host "Switch between providers. Applies to this terminal session only.`n" -ForegroundColor Gray
     for ($i = 0; $i -lt $entries.Count; $i++) {
         Write-Host "  $($i + 1)  $($entries[$i].Display)"
     }
@@ -60,19 +56,10 @@ if ($fzfAvailable) {
 
 if (-not $selectedName) { exit 1 }
 
-# Merge env from provider into settings.json
-if (-not (Test-Path $settingsPath)) {
-    '{}' | Set-Content $settingsPath -Encoding UTF8
-}
-
-$settings = Get-Content $settingsPath -Raw | ConvertFrom-Json
 $providerPath = "$providersDir\$selectedName.json"
-$provider = Get-Content $providerPath -Raw | ConvertFrom-Json
-
-# Replace env field, preserve everything else
-$settings | Add-Member -MemberType NoteProperty -Name "env" -Value $provider.env -Force
-
-$settings | ConvertTo-Json -Depth 10 | Set-Content $settingsPath -Encoding UTF8
+$settingsJson = Get-Content $providerPath -Raw | ConvertFrom-Json |
+    Select-Object -Property env |
+    ConvertTo-Json -Compress
 
 Write-Host "Switched to $selectedName, starting Claude Code..."
-& claude @args
+& claude --settings $settingsJson @args

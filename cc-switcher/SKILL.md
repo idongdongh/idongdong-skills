@@ -1,7 +1,7 @@
 ---
 name: cc-switcher
 description: |
-  Use when: 用户提到配置模型、添加DeepSeek/Qwen/OpenRouter/Gemini 等第三方提供商、让 Claude Code 使用第三方 API、配置 cc 命令、更新模型、模型过期、更新提供商配置。
+  Use when: 用户要操作任何第三方模型提供商（小米/DeepSeek/OpenRouter/Gemini/MiniMax/智谱等），包括：首次配置、添加新提供商、删除提供商、更新模型。触发词包括但不限于："配置模型"、"更新模型"、"添加提供商"、"模型过期"、"第三方 API"、"切换模型提供商"、"cc 命令"。
   DO NOT use when: 用户只是在问 Claude 模型的能力对比，或只是切换 /model 而不涉及 API Key 配置。
 ---
 
@@ -48,7 +48,7 @@ description: |
 
 > 以后请通过输入 `cc` 启动 Claude Code，脚本会列出所有提供商供你选择。
 > 需要透传参数时直接附加，例如：`cc --dangerously-skip-permissions`
-> **注意**：必须**重启 Claude Code**才可以切换模型提供商。
+> **注意**：每个终端独立选择提供商，切换提供商只需重新运行 `cc` 即可，无需重启其他终端。
 
 ---
 
@@ -82,7 +82,7 @@ description: |
 
 ## 工作流 C：删除提供商
 
-1. **静默检测活跃冲突**：比对待删除 provider 文件与 `SETTINGS` 的 `env.ANTHROPIC_BASE_URL`
+1. **静默检测活跃冲突**：比对待删除 provider 文件名与 `LAUNCH_SCRIPT` 最近一次选择（可通过检查当前终端进程的 `--settings` 参数判断）
 2. **若冲突** → 提示：「你当前正在使用 [模型名称]，确认删除吗？」等待确认
 3. **删除** `PROVIDERS_DIR/<公司名>.json`
 4. **告知用户**：「[提供商名] 已删除。」若有冲突补充：「下次运行 `cc` 时选择其他提供商即可。」
@@ -100,7 +100,7 @@ description: |
 3. **判断是否有新版本**：
    - 有 → 展示当前 vs 最新对比，询问是否更新
    - 无 → 告知「当前配置已是最新」
-4. **执行更新**：保留 API Key 不变，只更新 5 个 `ANTHROPIC_*_MODEL` 字段，告知「重启 Claude Code 后生效」
+4. **执行更新**：保留 API Key 不变，只更新 5 个 `ANTHROPIC_*_MODEL` 字段，告知「重新运行 `cc` 即可使用新模型」
 
 ---
 
