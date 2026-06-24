@@ -1,5 +1,15 @@
 Write-Host "`n  Select Provider" -ForegroundColor Blue
 
+# 简写参数展开
+$resolvedArgs = @()
+foreach ($arg in $args) {
+    if ($arg -eq '--yolo') {
+        $resolvedArgs += '--dangerously-skip-permissions'
+    } else {
+        $resolvedArgs += $arg
+    }
+}
+
 $providersDir = "$env:USERPROFILE\.claude\providers"
 
 # Scan all .json files and build menu entries
@@ -66,4 +76,4 @@ $settings | Add-Member -NotePropertyMembers @{ env = $providerEnv.env } -Force
 $settings | ConvertTo-Json -Depth 10 -Compress | Out-File -FilePath $settingsPath -Encoding utf8
 
 Write-Host "Switched to $selectedName, starting Claude Code..."
-& claude @args
+& claude @resolvedArgs

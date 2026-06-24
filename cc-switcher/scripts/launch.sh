@@ -2,6 +2,16 @@
 
 echo -e "\n\033[1;34m  Select Provider\033[0m"
 
+# 简写参数展开
+args=()
+for arg in "$@"; do
+  case "$arg" in
+    --yolo) args+=("--dangerously-skip-permissions") ;;
+    *)      args+=("$arg") ;;
+  esac
+done
+set -- "${args[@]}"
+
 PROVIDERS_DIR=~/.claude/providers
 
 # 动态扫描 providers 目录，构造 "名称  模型" 格式的选项列表

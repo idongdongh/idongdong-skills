@@ -47,7 +47,7 @@ description: |
 ### [完成提示]
 
 > 以后请通过输入 `cc` 启动 Claude Code，脚本会列出所有提供商供你选择。
-> 需要透传参数时直接附加，例如：`cc --dangerously-skip-permissions`
+> 需要透传参数时直接附加，例如：`cc --yolo`（等价于 `cc --dangerously-skip-permissions`）
 > **注意**：`cc` 会将提供商配置写入全局 settings.json，所有终端共享同一提供商。如需切换提供商，重新运行 `cc` 即可。
 
 ---
