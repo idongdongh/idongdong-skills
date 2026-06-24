@@ -39,7 +39,7 @@ brew install fzf jq
 
 Windows 无强制依赖，`fzf` 可选。
 
-## 使用
+### 使用
 
 在 Claude Code 中说：
 
@@ -48,20 +48,16 @@ Windows 无强制依赖，`fzf` 可选。
 - **删除提供商**：「删除 OpenRouter」
 - **更新模型**：「帮我更新 DeepSeek 的模型」
 
-配置完成后，终端运行 `cc` 即可通过交互菜单选择提供商启动 Claude Code。每个终端独立选择，互不干扰。
-
-## image-crop-tool
-
-用于图像分析中需要裁剪关键区域、放大局部细节的场景，例如小字看不清、图表刻度或数值难读、技术图标签太小、密集截图局部 UI 状态、报错文本、商品瑕疵等。
-
-脚本依赖 `Pillow`：
+配置完成后，终端运行 `cc` 即可通过交互菜单选择提供商启动 Claude Code。
 
 ```bash
-python3 -c "import PIL; print(PIL.__version__)"
-uv add pillow 2>/dev/null || (uv venv && uv pip install pillow)
+cc
+cc --yolo
 ```
 
-## 配置文件格式
+`cc --yolo` 等价于 `cc --dangerously-skip-permissions`。
+
+### 配置文件格式
 
 `~/.claude/providers/<公司名>.json`：
 
@@ -81,6 +77,39 @@ uv add pillow 2>/dev/null || (uv venv && uv pip install pillow)
   }
 }
 ```
+
+## image-crop-tool
+
+用于图像分析中需要裁剪关键区域、放大局部细节的场景，例如小字看不清、图表刻度或数值难读、技术图标签太小、密集截图局部 UI 状态、报错文本、商品瑕疵等。
+
+### 依赖
+
+脚本依赖 `Pillow`：
+
+```bash
+python3 -c "import PIL; print(PIL.__version__)"
+uv add pillow 2>/dev/null || (uv venv && uv pip install pillow)
+```
+
+### 使用
+
+在 Claude Code / Codex 中说：
+
+- 「这张截图里的报错信息太小了，帮我放大局部读出来」
+- 「放大图表底部坐标轴，比较这两个数值」
+- 「检查这个 UI 截图右下角按钮是 disabled 还是 loading」
+
+也可以直接运行脚本：
+
+```bash
+python3 ~/.claude/skills/image-crop-tool/scripts/crop_image.py \
+  /path/to/input.png \
+  --box 0.65 0.65 1.00 1.00 \
+  --output /path/to/output-crop.png \
+  --metadata-output /path/to/output-crop.json
+```
+
+坐标使用 `0-1` 归一化坐标，顺序是 `x1 y1 x2 y2`。
 
 ## 更新日志
 
